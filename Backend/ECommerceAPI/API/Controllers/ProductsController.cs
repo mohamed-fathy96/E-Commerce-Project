@@ -9,6 +9,7 @@ using Infrastructure.Data;
 using Core.Models;
 using Core.Interfaces;
 using Core.Specifications;
+using ECommerceAPI.DTOs;
 
 namespace ECommerceAPI.Controllers
 {
@@ -31,16 +32,26 @@ namespace ECommerceAPI.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts()
         {
             var spec = new ProductsWithTypesAndBrandsSpecification();
             var products = await productRepo.GetAllWithSpecAsync(spec);
-            return Ok(products);
+
+            return products.Select(product => new ProductDTO()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                PictureUrl = product.PictureUrl,
+                Price = product.Price,
+                ProductBrand = product.ProductBrand.Name,
+                ProductType = product.ProductType.Name
+            }).ToList();
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductDTO>> GetProduct(int id)
         {
             var spec = new ProductsWithTypesAndBrandsSpecification(id);
 
@@ -51,7 +62,16 @@ namespace ECommerceAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(product);
+            return new ProductDTO()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                PictureUrl = product.PictureUrl,
+                Price = product.Price,
+                ProductBrand = product.ProductBrand.Name,
+                ProductType = product.ProductType.Name
+            };
         }
         [HttpGet("brands")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProductBrands()

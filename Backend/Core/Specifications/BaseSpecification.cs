@@ -11,8 +11,9 @@ namespace Core.Specifications
     {
         public BaseSpecification()
         {
-
+            Includes = new List<Expression<Func<T, object>>>();
         }
+
         public BaseSpecification(Expression<Func<T, bool>> criteria)
         {
             Criteria = criteria;
