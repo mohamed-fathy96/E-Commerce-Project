@@ -10,6 +10,7 @@ using Core.Models;
 using Core.Interfaces;
 using Core.Specifications;
 using ECommerceAPI.DTOs;
+using AutoMapper;
 
 namespace ECommerceAPI.Controllers
 {
@@ -20,14 +21,17 @@ namespace ECommerceAPI.Controllers
         private readonly IGenericRepository<Product> productRepo;
         private readonly IGenericRepository<ProductType> typeRepo;
         private readonly IGenericRepository<ProductBrand> brandRepo;
+        private readonly IMapper mapper;
 
         public ProductsController(IGenericRepository<Product> productRepo
             , IGenericRepository<ProductType> typeRepo
-            , IGenericRepository<ProductBrand> brandRepo)
+            , IGenericRepository<ProductBrand> brandRepo
+            , IMapper mapper)
         {
             this.productRepo = productRepo;
             this.typeRepo = typeRepo;
             this.brandRepo = brandRepo;
+            this.mapper = mapper;
         }
 
         // GET: api/Products
@@ -37,16 +41,8 @@ namespace ECommerceAPI.Controllers
             var spec = new ProductsWithTypesAndBrandsSpecification();
             var products = await productRepo.GetAllWithSpecAsync(spec);
 
-            return products.Select(product => new ProductDTO()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                PictureUrl = product.PictureUrl,
-                Price = product.Price,
-                ProductBrand = product.ProductBrand.Name,
-                ProductType = product.ProductType.Name
-            }).ToList();
+            return Ok(products.Select(product =>
+            mapper.Map<Product, ProductDTO>(product)).ToList());
         }
 
         // GET: api/Products/5
@@ -62,16 +58,7 @@ namespace ECommerceAPI.Controllers
                 return NotFound();
             }
 
-            return new ProductDTO()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                PictureUrl = product.PictureUrl,
-                Price = product.Price,
-                ProductBrand = product.ProductBrand.Name,
-                ProductType = product.ProductType.Name
-            };
+            return Ok(mapper.Map<Product, ProductDTO>(product));
         }
         [HttpGet("brands")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProductBrands()
