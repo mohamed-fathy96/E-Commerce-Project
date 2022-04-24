@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
-namespace ECommerceAPI.Data
+namespace Infrastructure.Data
 {
     public class StoreContext : DbContext
     {

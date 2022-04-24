@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ECommerceAPI.Data;
+using Infrastructure.Data;
 using Core.Models;
 using Core.Interfaces;
 
@@ -42,6 +42,18 @@ namespace ECommerceAPI.Controllers
             }
 
             return Ok(product);
+        }
+        [HttpGet("brands")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProductBrands()
+        {
+            var productBrands = await repo.GetAllProductBrandsAsync();
+            return Ok(productBrands);
+        }
+        [HttpGet("types")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProductTypes()
+        {
+            var productTypes = await repo.GetAllProductTypesAsync();
+            return Ok(productTypes);
         }
 
         //// PUT: api/Products/5

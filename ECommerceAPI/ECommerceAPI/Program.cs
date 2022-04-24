@@ -1,5 +1,4 @@
 using Core.Interfaces;
-using ECommerceAPI.Data;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -36,6 +35,7 @@ using (var scope = app.Services.CreateScope())
     {
         var StoreContext = scope.ServiceProvider.GetRequiredService<StoreContext>();
         await StoreContext.Database.MigrateAsync();
+        await StoreContextSeed.SeedAsync(StoreContext);
     }
     catch (Exception ex)
     {
