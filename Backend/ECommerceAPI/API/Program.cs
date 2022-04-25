@@ -20,6 +20,13 @@ builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddApplicationServices();
 builder.Services.AddSwaggerDocumentation();
 
+builder.Services.AddCors(option => option.AddPolicy
+("CorsPolicy", policy =>
+{
+    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:7105");
+}
+));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -30,6 +37,8 @@ app.UseSwaggerDocumentation();
 app.UseStatusCodePagesWithReExecute("/errors/{0}");
 
 app.UseHttpsRedirection();
+
+app.UseCors("CorsPolicy");
 
 app.UseAuthorization();
 

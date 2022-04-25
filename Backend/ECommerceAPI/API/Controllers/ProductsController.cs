@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.Data;
-using Core.Models;
+﻿using API.Errors;
+using API.Helpers;
+using AutoMapper;
 using Core.Interfaces;
+using Core.Models;
 using Core.Specifications;
 using ECommerceAPI.DTOs;
-using AutoMapper;
-using API.Errors;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
@@ -35,13 +29,18 @@ namespace API.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts()
+        public async Task<ActionResult<Pagination<ProductDTO>>> GetProducts(
+            [FromQuery]ProductSpecParams productParams)
         {
-            var spec = new ProductsWithTypesAndBrandsSpecification();
+            var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
+            var countSpec = new ProductWithFiltersForCountSpecification(productParams);
+            var totalItems = await productRepo.CountAsync(countSpec);
             var products = await productRepo.GetAllWithSpecAsync(spec);
+            var data = mapper.Map<IEnumerable<Product>, IEnumerable<ProductDTO>>(products);
 
-            return Ok(products.Select(product =>
-            mapper.Map<Product, ProductDTO>(product)).ToList());
+
+            return Ok(new Pagination<ProductDTO>(productParams.PageIndex,
+                productParams.PageSize, totalItems, data));
         }
 
         // GET: api/Products/5
