@@ -1,5 +1,6 @@
+using API.Extensions;
 using API.Helpers;
-using Core.Interfaces;
+using API.Middleware;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -9,22 +10,24 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<StoreContext>(c => c.UseSqlServer(builder.Configuration.GetConnectionString("ECommerceProjectConn")));
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+//Applying Automapper Middleware to map products to product DTOs
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
+
+// Custom Services extension methods to apply application services and Swagger Documentation
+builder.Services.AddApplicationServices();
+builder.Services.AddSwaggerDocumentation();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseSwaggerDocumentation();
+
+app.UseStatusCodePagesWithReExecute("/errors/{0}");
 
 app.UseHttpsRedirection();
 
@@ -34,6 +37,7 @@ app.UseStaticFiles();
 
 app.MapControllers();
 
+// Seeding data to database and applying migrations
 using (var scope = app.Services.CreateScope())
 {
     try
