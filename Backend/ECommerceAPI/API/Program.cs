@@ -23,7 +23,7 @@ builder.Services.AddSwaggerDocumentation();
 builder.Services.AddCors(option => option.AddPolicy
 ("CorsPolicy", policy =>
 {
-    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:7105");
+    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:7105");
 }
 ));
 
